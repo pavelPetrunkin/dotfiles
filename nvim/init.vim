@@ -1,6 +1,22 @@
-"""SETUP ZSH
-"""Copy script below
-"sudo apt-get install ripgrep && sudo apt install zsh && sudo apt install powerline fonts-powerline && git clone https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh && cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc && set zsh default chsh -s /bin/zsh
+"""SETUP NVIM UBUNTU
+
+"""INSTALL NVIM
+"cd ~ && sudo apt-get update && sudo apt install neovim
+
+"""INSTALL XCLIP
+"sudo apt install xclip
+
+"""INSTALL NODEJS
+"sudo apt install nodejs && sudo apt install npm && sudo apt install yarn && sudo npm install -g neovim
+
+"""INSTALL GIT
+"sudo apt install git
+
+"""INSTALL PLUG NVIM
+"sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+
+"""INSTALL AND SETUP ZSH
+"sudo apt-get install ripgrep && sudo apt install zsh && sudo apt install powerline fonts-powerline && git clone https://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh && cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc && set zsh default chsh -s /bin/zsh && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && sudo apt install python2 && sudo python2 get-pip.py && pip install neovim
 "change .zshrc like this https://github.com/kaiflife/dotfiles/blob/master/myzsh/.zshrc
 
 """ nvim Plugins. Use :PlugInstall for install
@@ -17,44 +33,101 @@ call plug#begin('~/.local/share/nvim/plugged')
   Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
   Plug 'junegunn/fzf.vim'
   Plug 'jshint/jshint'
+  Plug 'Valloric/MatchTagAlways'
+  Plug 'SirVer/ultisnips'
+  Plug 'mlaursen/vim-react-snippets'
+  Plug 'jiangmiao/auto-pairs'
 call plug#end()
 
-""" autoimports for javascript :CocInstall coc-tsserver
-""" ctrl+n to autocomplete
-""" when coc give you a result just press ctrl+y for import module
+" ctrl+n to autocomplete
+" when coc give you a result just press ctrl+y for import module
 
-""" to open images use m+o (open image using system image viewer)
+" to open images use m+o (open image using system image viewer)
 
-"""Prettier use command :Prettier
+"Prettier use command :Prettier
 
 """ Mappings
 let g:ale_completion_autoimport = 1
-let mapleader=","
-let g:ale_fixers['javascript'] = ['eslint']
+let mapleader=" "
+let g:ale_fixers = {}
+let g:ale_fixers.javascript = ['eslint']
 let g:ale_sign_error = '❌'
 let g:ale_sign_warning = '⚠️'
 let g:ale_completion_enabled = 1
 let NERDTreeCustomOpenArgs={'file':{'where': 't'}}
 
-let g:NERDTreeIndicatorMapCustom = {
-    \ "Modified"  : "✹",
-    \ "Staged"    : "✚",
-    \ "Untracked" : "✭",
-    \ "Renamed"   : "➜",
-    \ "Unmerged"  : "═",
-    \ "Deleted"   : "",
-    \ "Dirty"     : "✗",
-    \ "Clean"     : "✔︎",
-    \ 'Ignored'   : '☒',
-    \ "Unknown"   : "?"
-    \ 
-}
+" CoC extensions
+let g:coc_global_extensions = ['coc-solargraph', 'coc-tsserver', 'coc-json', 'coc-eslint', 'coc-prettier', 'coc-css']
+
+let g:NERDTreeGitStatusIndicatorMapCustom= {
+    \"Modified"  : "✹",
+    \"Staged"    : "✚",
+    \"Untracked" : "✭",
+    \"Renamed"   : "➜",
+    \"Unmerged"  : "═",
+    \"Deleted"   : "",
+    \"Dirty"     : "✗",
+    \"Clean"     : "✔︎",
+    \'Ignored'   : '☒',
+    \"Unknown"   : "?",
+    \}
 
 """FZF
-map <leader>f <Esc>:GitFiles<CR>
-map <leader>F <Esc>:Files<CR>
-map <leader>L <Esc>:Rg<CR>
-map <leader>l <Esc>:BLines<CR>
+map <leader>f :wa <bar> <Esc>:GitFiles<CR>
+map <leader>F :wa <bar> <Esc>:Files<CR>
+map <leader>L :wa <bar> <Esc>:Rg<CR>
+map <leader>l :wa <bar> <Esc>:BLines<CR>
+
+"If you want to chain commands from the vimrc file, then you need to use <bar> instead of | like this:
+"<CR> - Enter
+nnoremap <silent> <leader>o :wa <bar> <Esc>:FZF -q <C-R>=expand("<cword>")<CR><CR>
+nnoremap <silent> <leader>O :wa <bar> <Esc>:Rg <C-R>=expand("<cword>")<CR><CR>
+
+"""SETUP GREP METHOD
+"MACOS brew install ripgrep
+"UBUNTU sudo apt-get install ripgrep
+if executable("rg")
+    set grepprg=rg\ --vimgrep\ --no-heading
+    set grepformat=%f:%l:%c:%m,%f:%l:%m
+    " set grepformat=%f:%l:%c:%m
+endif
+"""RENAME WORD
+map <leader>rw :call SubstituteInFile(expand("<cword>"))<CR>
+function! GetSubstituteCommand(range, term)
+  "g – “Global” option. Perform the replace on every occurrence of a line
+  "gc – Ask for confirmation before making each replacement.
+  return a:range . "s" . input(":s", "/\\<" . a:term . "\\>/" . a:term . "/gc\<C-f>F/F/l")
+endfunction
+
+function! SubstituteInFile(text)
+    execute GetSubstituteCommand("%", a:text)
+endfunction
+"""RENAME WORD
+
+"""MULTIPLY RENAME WORD
+map <leader>mrw :call SubstituteInCodebase(expand("<cword>"))<CR>
+
+function! QuickfixDo(command)
+    let itemCount = len(getqflist())
+    let itemNr = 1
+    while itemNr <= itemCount
+        exe "cc " . itemNr
+        exe a:command
+        let itemNr = itemNr + 1
+    endwhile
+endfunction
+
+function! SubstituteInCodebase(text)
+    let grepCommand = GetGrepCommand(a:text)
+    let substituteCommand = GetSubstituteCommand("", a:text)
+    execute grepCommand
+    call QuickfixDo(substituteCommand . " | update")
+endfunction
+
+function! GetGrepCommand(term)
+  return "grep " . input(":grep ", "-w '" . a:term . "'\<C-f>F'F'l")
+endfunction
+"""MULTIPLY RENAME WORD
 
 """ Comments Mappings
 map <leader>c <Esc>:Commentary<CR>
@@ -62,13 +135,13 @@ vmap <leader>c gc
 
 """ Dublicate line mapping
 nmap <C-d> mzyyp`z
-nnoremap <MiddleMouse> :tabclose<CR> 
+nnoremap <MiddleMouse> :wa <bar> :tabclose<CR> 
 
 """ Tabs Mappings
-map <leader>t <Esc>:tabnew<CR>
+map <leader>t :wa <bar> <Esc>:tabnew<CR>
 
-map <leader>w <Esc>:tabclose<CR>
-map <leader>W <Esc>:tabclose!<CR>
+map <leader>w :wa <bar> <Esc>:tabclose<CR>
+map <leader>W :wa <bar> <Esc>:tabclose!<CR>
 map <leader>1 <Esc>1gt
 map <leader>2 <Esc>2gt
 map <leader>3 <Esc>3gt
@@ -79,13 +152,19 @@ map <leader>7 <Esc>7gt
 map <leader>8 <Esc>8gt
 map <leader>9 <Esc>9gt
 
+if executable('rg')
+  let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --follow --glob "!.git/*"'
+  set grepprg=rg\ --vimgrep
+  command! -bang -nargs=* Find call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>).'| tr -d "\017"', 1, <bang>0)
+endif
+
 autocmd! FileType fzf
 autocmd  FileType fzf set laststatus=0 noshowmode noruler
   \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
 
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
-  \   'rg --column --line-number --hidden --ignore-case --no-heading --color=always '.shellescape(<q-args>), 1,
+  \   'rg --column --line-number --ignore-case --no-heading --color=always '.shellescape(<q-args>), 1,
   \   <bang>0 ? fzf#vim#with_preview({'options': '--delimiter : --nth 4..'}, 'up:60%')
   \           : fzf#vim#with_preview({'options': '--delimiter : --nth 4.. -e'}, 'right:50%:hidden', '?'),
   \   <bang>0)
@@ -106,6 +185,28 @@ let g:fzf_commands_expect = 'alt-enter,ctrl-x'
 autocmd VimEnter * NERDTree
 autocmd VimEnter * wincmd p
 autocmd BufWinEnter * NERDTreeMirror
+
+""" AutoClose
+let g:closetag_filenames = '*.html,*.xhtml,*.phtml,*jsx,*js'
+let g:closetag_emptyTags_caseSensitive = 1
+
+let g:closetag_shortcut = '>'
+let g:closetag_close_shortcut = '<leader>>'
+let g:jsx_ext_required=0
+
+"""Hightlight pair tag
+nnoremap <leader>% :MtaJumpToOtherTag<cr>
+let g:mta_use_matchparen_group = 1
+let g:mta_filetypes = {
+    \'javascriptreact': 1,
+    \'javascript': 1,
+    \ 'html' : 1,
+    \ 'xhtml' : 1,
+    \ 'xml' : 1,
+    \ 'jinja' : 1,
+\}
+highlight MatchTag ctermfg=black ctermbg=lightgreen guifg=black guibg=lightgreen
+hi link jsxCloseString htmlTag
 
 """ Common
 syntax on
@@ -142,3 +243,4 @@ set omnifunc=ale#completion#OmniFunc
 if exists('&colorcolumn')
   set colorcolumn=80
 endif
+hi Search guibg=guibg guifg=guifg gui=italic,underline,bold
