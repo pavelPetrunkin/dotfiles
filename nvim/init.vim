@@ -37,6 +37,7 @@ call plug#begin('~/.local/share/nvim/plugged')
   Plug 'SirVer/ultisnips'
   Plug 'mlaursen/vim-react-snippets'
   Plug 'jiangmiao/auto-pairs'
+  Plug 'alvan/vim-closetag'
 call plug#end()
 
 " ctrl+n to autocomplete
@@ -55,9 +56,6 @@ let g:ale_sign_error = '❌'
 let g:ale_sign_warning = '⚠️'
 let g:ale_completion_enabled = 1
 let NERDTreeCustomOpenArgs={'file':{'where': 't'}}
-
-" CoC extensions
-let g:coc_global_extensions = ['coc-solargraph', 'coc-tsserver', 'coc-json', 'coc-eslint', 'coc-prettier', 'coc-css']
 
 let g:NERDTreeGitStatusIndicatorMapCustom= {
     \"Modified"  : "✹",
@@ -103,6 +101,9 @@ function! SubstituteInFile(text)
     execute GetSubstituteCommand("%", a:text)
 endfunction
 """RENAME WORD
+
+" CoC extensions
+let g:coc_global_extensions = ['coc-solargraph', 'coc-tsserver', 'coc-json', 'coc-eslint', 'coc-prettier', 'coc-css']
 
 """MULTIPLY RENAME WORD
 map <leader>mrw :call SubstituteInCodebase(expand("<cword>"))<CR>
@@ -187,7 +188,7 @@ autocmd VimEnter * wincmd p
 autocmd BufWinEnter * NERDTreeMirror
 
 """ AutoClose
-let g:closetag_filenames = '*.html,*.xhtml,*.phtml,*jsx,*js'
+let g:closetag_filenames = '*.html,*.xhtml,*.phtml,*.jsx,*.js'
 let g:closetag_emptyTags_caseSensitive = 1
 
 let g:closetag_shortcut = '>'
